@@ -37,6 +37,7 @@ db:
     user: CWDSNS3
     url: jdbc:db2://db-1a.nonprod-gateway.cwds.io:4016/DBN1SOC
     schema: CWSNS1
+    password: SnVseTAxOEE=
 
 token:
   timeout: 480
@@ -45,10 +46,12 @@ token:
     url: jdbc:postgresql://postgresql.sandboxk8.cwds.io:5432/sandboxk8?currentSchema=perry
     user: sandboxk8_postgres
     schema: perry
+    password: ajgzZVBNa2pYQjlkOGpoZg==
 
 idp:
   base_url: https://sandboxk8cwds.auth.us-west-2.amazoncognito.com
   client_id: g9p2rvtlttf1alf4cga9dsv8t
+  client_secret: MmZsMGNvdG82bjJxcTlvYjYxN2swYWxkM3BmdGhrbzA1OWJoM3BwZDUwZWo2dGN1aDVi
   mapping_script: config/cognito.groovy
   auth_schema: query
   client_auth_schema: header
@@ -56,6 +59,7 @@ idp:
   host: cognito-idp.us-west-2.amazonaws.com
   enabled: true
   iam_access_id: AKIAI4PLOEK52ZUPANHA
+  iam_secret: U2djTnJnbVJjbzl1VEZrVUVFVEhVM1orbmZOMlA0a290K3ZGZFdadw==
   aws_region: us-west-2
   userpool: us-west-2_8u1FAcwMx
 
@@ -63,6 +67,7 @@ idm:
   enabled: true
   mapping_script: config/idm.groovy
   basic_auth_user: idmperry
+  basic_auth_password: R2Q0MWg5ZHFQUHU=
 
 sp:
  identity_mapping_script: config/default.groovy

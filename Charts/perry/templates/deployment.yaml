@@ -38,35 +38,30 @@ spec:
           - configMapRef:
               name: {{ .Release.Name }}-config
           env:
-          - name: DB_CMS_USER
-            valueFrom:
-              secretKeyRef:
-                name: db2-credentials
-                key: user
           - name: DB_CMS_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: db2-credentials
-                key: password
+                name: {{ template "perry.fullname" . }}
+                key: db_cms_password
           - name: TOKEN_STORE_DB_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: postgres-credentials
-                key: password
+                name: {{ template "perry.fullname" . }}
+                key: token_store_password
           - name: SAF_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
-                name: saf-client-secret
+                name: {{ template "perry.fullname" . }}
                 key: saf-client-secret
           - name: COGNITO_IAM_SECRET
             valueFrom:
               secretKeyRef:
-                name: cognito-iam
+                name: {{ template "perry.fullname" . }}
                 key: cognito-iam-secret
           - name: IDM_BASIC_AUTH_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: cognito-iam
+                name: {{ template "perry.fullname" . }}
                 key: idm-basic-auth-password
           ports:
           - name: perry-client
