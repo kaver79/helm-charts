@@ -1,0 +1,79 @@
+# Default values for perry.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: cwds/perry
+  tag: 1.5.7
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  clientPort: 8080
+  adminPort: 9082
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+##
+## External DB2 configuration. Only active if the db2 chart is not enabled.
+##
+externalDB2:
+  ## Database JDBC URL
+  url:
+
+  ## Database user
+  user: 
+
+  ## Database password
+  password:
+
+##
+## DB2 chart configuration
+##
+db2:
+  ## Whether to use the DB2 database specified as a requirement or not. For example, to configure the chart with an existing external DB2 database server.
+  enabled: true
+  database: DB0TDEV
+  user: db2inst1
+  
+##
+## Redis chart configuration
+##
+redis:
+  ## Whether to use redis or not. If disabled the application will be configured to run without redis.
+  enabled: true
+  ## Application appears to fail to connect when a password is used - TODO: investigate this.
+  redisPassword:
+
+# Full URL to Perry (TODO: make this dynamic using Route53 annotations).
+perryURL: http://localhost
+
+# Major application parameters
+db2Schema: CWSINT
+devMode: true
+saf:
+  clientId: EC591707-BE4E-4DE5-8FC7-7CFF83B04F65
+  clientSecret: UDSoHckdeIhZTMBqrESffEgQVQ7s17AqWn/Hayv9j2DCSoSLd0RKIT15XZY4jCtALkR2/pVbSla5NM3mu3GF8kKQHyXc7f4OJJbA/SRzotmX2x6za4R+s9hRdbBxhG63wgrU1aXcTGg9DtsLVtdDV9h/4Sz0ZLqdB66yirbX6vD/w/Pw/QybP738gWrr3g3FjTtyQ1QbaEBlQrteqH6/0PjTe2ZZCOJjag7dzQ0oGV9baeecjsqF1bmEqtSlqfSbx+/JlVOzyIb4c9MUZWg0gnUQksS8+StJ1f9TRjZMeZ7qwhMNEQ5rqTrEFYAOYRohp6jrdSZjEAq2xaUAJEvOFQ==
+
+# Optional application parameters can be specified below:
+#env:
+#- name:
+#  value:

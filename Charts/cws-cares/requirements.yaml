@@ -1,0 +1,19 @@
+dependencies:
+- name: db2
+  version: 0.4.2
+  repository: file://../db2
+- name: perry
+  version: 1.5.7
+  repository: file://../perry
+- name: intake-api
+  version: 0.1.0
+  repository: file://../intake-api
+- name: cals-api
+  version: 0.1.0
+  repository: file://../cals-api
+- name: intake
+  version: 0.1.0
+  repository: file://../intake
+- name: cals
+  version: 0.1.0
+  repository: file://../cals

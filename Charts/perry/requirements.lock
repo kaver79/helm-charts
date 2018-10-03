@@ -1,0 +1,9 @@
+dependencies:
+- name: redis
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 1.1.19
+- name: db2
+  repository: file://../db2
+  version: 0.4.2
+digest: sha256:41b6b0023e26d3b16d95d9d5ddff2425192c10e3a0f879212113e6e51e6bc88d
+generated: 2018-03-14T22:41:30.618075254-07:00

@@ -1,0 +1,21 @@
+dependencies:
+- name: db2
+  repository: file://../db2
+  version: 0.4.2
+- name: perry
+  repository: file://../perry
+  version: 1.5.7
+- name: intake-api
+  repository: file://../intake-api
+  version: 0.1.0
+- name: cals-api
+  repository: file://../cals-api
+  version: 0.1.0
+- name: intake
+  repository: file://../intake
+  version: 0.1.0
+- name: cals
+  repository: file://../cals
+  version: 0.1.0
+digest: sha256:8ab696789df15c7aa486e0d4d6a1d1781779111268f19ba3e7d807ac5c2853de
+generated: 2018-03-16T13:01:29.202800864-07:00
