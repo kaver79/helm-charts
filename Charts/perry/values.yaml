@@ -2,29 +2,25 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: cwds/perry
-  tag: 1.5.7
+  tag: 4.0.0_993-RC
   pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP
-  clientPort: 8080
+  type: LoadBalancer
+  clientPort: 443
   adminPort: 9082
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #  cpu: 100m
-  #  memory: 128Mi
-  # requests:
-  #  cpu: 100m
-  #  memory: 128Mi
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 500m
+  limits:
+    memory: 2048Mi
+    cpu: 2000m
 
 nodeSelector: {}
 
@@ -32,46 +28,76 @@ tolerations: []
 
 affinity: {}
 
-##
-## External DB2 configuration. Only active if the db2 chart is not enabled.
-##
-externalDB2:
-  ## Database JDBC URL
-  url:
+###
+### Perry configuration
+###
+db:
+  cms:
+    database: DBN1SOC
+    user: CWDSNS3
+    url: jdbc:db2://db-1a.nonprod-gateway.cwds.io:4016/DBN1SOC
+    schema: CWSNS1
 
-  ## Database user
-  user: 
+token:
+  timeout: 480
+  name: access_token
+  store:
+    url: jdbc:postgresql://postgresql.sandboxk8.cwds.io:5432/sandboxk8?currentSchema=perry
+    user: sandboxk8_postgres
+    schema: perry
 
-  ## Database password
-  password:
-
-##
-## DB2 chart configuration
-##
-db2:
-  ## Whether to use the DB2 database specified as a requirement or not. For example, to configure the chart with an existing external DB2 database server.
+idp:
+  base_url: https://sandboxk8cwds.auth.us-west-2.amazoncognito.com
+  client_id: g9p2rvtlttf1alf4cga9dsv8t
+  mapping_script: config/cognito.groovy
+  auth_schema: query
+  client_auth_schema: header
+  validate_interval: 60
+  host: cognito-idp.us-west-2.amazonaws.com
   enabled: true
-  database: DB0TDEV
-  user: db2inst1
-  
+  iam_access_id: AKIAI4PLOEK52ZUPANHA
+  aws_region: us-west-2
+  userpool: us-west-2_8u1FAcwMx
+
+idm:
+  enabled: true
+  mapping_script: config/idm.groovy
+  basic_auth_user: idmperry
+
+sp:
+ identity_mapping_script: config/default.groovy
+ intake_identity_mapping_script: config/intake.groovy
+
+swagger:
+  enabled: true
+
+environment:
+  url: https://web.sandboxk8.cwds.io
+
 ##
 ## Redis chart configuration
 ##
 redis:
   ## Whether to use redis or not. If disabled the application will be configured to run without redis.
   enabled: true
-  ## Application appears to fail to connect when a password is used - TODO: investigate this.
+  port: 6379
+  host: intake.redis.sandboxk8.cwds.io
+  ## Application appears to fail to connect when a password is used - TODO: investigate this - for now AWS is not support auth on redis side.
   redisPassword:
 
 # Full URL to Perry (TODO: make this dynamic using Route53 annotations).
 perryURL: http://localhost
 
+ignore_oauth2_state: true
+use_current_uri: true
+
 # Major application parameters
-db2Schema: CWSINT
 devMode: true
-saf:
-  clientId: EC591707-BE4E-4DE5-8FC7-7CFF83B04F65
-  clientSecret: UDSoHckdeIhZTMBqrESffEgQVQ7s17AqWn/Hayv9j2DCSoSLd0RKIT15XZY4jCtALkR2/pVbSla5NM3mu3GF8kKQHyXc7f4OJJbA/SRzotmX2x6za4R+s9hRdbBxhG63wgrU1aXcTGg9DtsLVtdDV9h/4Sz0ZLqdB66yirbX6vD/w/Pw/QybP738gWrr3g3FjTtyQ1QbaEBlQrteqH6/0PjTe2ZZCOJjag7dzQ0oGV9baeecjsqF1bmEqtSlqfSbx+/JlVOzyIb4c9MUZWg0gnUQksS8+StJ1f9TRjZMeZ7qwhMNEQ5rqTrEFYAOYRohp6jrdSZjEAq2xaUAJEvOFQ==
+mfaMode: false
+log_level: INFO
+
+dora_url: https://doraapi.sandboxk8.cwds.io
+whitelist: " http*://*.sandboxk8.cwds.io/** http*://*.sandboxk8.cwds.io:*/** /**/* **/* "
 
 # Optional application parameters can be specified below:
 #env:

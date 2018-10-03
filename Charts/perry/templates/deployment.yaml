@@ -13,6 +13,14 @@ spec:
     matchLabels:
       app: {{ template "perry.name" . }}
       release: {{ .Release.Name }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  progressDeadlineSeconds: 120
+  minReadySeconds: 60
+  revisionHistoryLimit: 5
   template:
     metadata:
       labels:
@@ -23,80 +31,58 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-            # Retrieve user and password from DB2 chart secret if using that
-            # or local chart secret if using an external DB2.
-            - name: DB_CMS_USER
-            {{- if .Values.db2.enabled }}
-              value: {{ .Values.db2.user }}
-            {{- else }}
-              value: {{ .Values.externalDB2.user }}
-            {{- end }}
-            - name: DB_CMS_PASSWORD
-            {{- if .Values.db2.enabled }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "perry.db2.fullname" . }}
-                  key: password
-            {{- else }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "perry.fullname" . }}
-                  key: password
-            {{- end }}
-            - name: DB_CMS_JDBC_URL
-            {{- if .Values.db2.enabled }}
-              value: jdbc:db2://{{ template "perry.db2.fullname" . }}:{{ .Values.db2.service.port }}/{{ .Values.db2.database }}
-            {{- else }}
-              value: {{ .Values.externalDB2.url }}
-            {{- end }}
-            - name: APP_VERSION
-              value: {{ .Chart.AppVersion }}
-            - name: DEV_MODE
-              value: {{ .Values.devMode | quote }}
-            - name: HOME_PAGE_URL
-              value: {{ .Values.perryURL }}/
-            - name: DB_CMS_SCHEMA
-              value: {{ .Values.db2Schema }}
-            - name: REDIS_ENABLED
-              value: {{ .Values.redis.enabled | quote }}
-            {{- if .Values.redis.enabled }}
-            - name: REDIS_HOST
-              value: {{ template "perry.redis.fullname" . }}
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "perry.redis.fullname" . }}
-                  key: redis-password
-            {{- end }}
-            - name: SAF_CLIENT_ID
-              value: {{ .Values.saf.clientId }}
-            - name: SAF_CLIENT_SECRET
-              value: {{ .Values.saf.clientSecret }}
-            - name: SAF_CALLBACK_URL
-              value: {{ .Values.perryURL }}/perry/authn/callback
-            - name: SIMPLE_ACCOUNT_LOGIN_BASE_PATH
-              value: {{ .Values.perryURL }}/perry/
-            {{ if .Values.env }}
-{{ toYaml .Values.env | indent 12 }}
-            {{- end }}
           ports:
-            - name: http-client
-              containerPort: 8080
-              protocol: TCP
-            - name: http-admin
-              containerPort: 9082
-              protocol: TCP
-          livenessProbe:
-            initialDelaySeconds: 15
-            periodSeconds: 20
-            httpGet:
-              path: /manage/health
-              port: http-admin
+            - containerPort: 8080
+            - containerPort: 9082
+          envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}-config
+          env:
+          - name: DB_CMS_USER
+            valueFrom:
+              secretKeyRef:
+                name: db2-credentials
+                key: user
+          - name: DB_CMS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db2-credentials
+                key: password
+          - name: TOKEN_STORE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-credentials
+                key: password
+          - name: SAF_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: saf-client-secret
+                key: saf-client-secret
+          - name: COGNITO_IAM_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: cognito-iam
+                key: cognito-iam-secret
+          - name: IDM_BASIC_AUTH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cognito-iam
+                key: idm-basic-auth-password
+          ports:
+          - name: perry-client
+            containerPort: 8080
           readinessProbe:
             httpGet:
-              path: /manage/health
-              port: http-admin
+              path: /perry/system-information
+              port: perry-client
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          livenessProbe:
+            httpGet:
+              path: /perry/system-information
+              port: perry-client
+            initialDelaySeconds: 180
+            periodSeconds: 30
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
