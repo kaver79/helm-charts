@@ -2,4 +2,4 @@ apiVersion: v1
 appVersion: "4.0.0_993-RC"
 description: Perry is an authentication API for CWDS Digital Services.
 name: perry
-version: 4.0.0_993-RC
+version: 4.0.993
