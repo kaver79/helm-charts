@@ -57,14 +57,14 @@ idp:
   client_auth_schema: header
   validate_interval: 60
   host: cognito-idp.us-west-2.amazonaws.com
-  enabled: true
+  enabled: "true"
   iam_access_id: AKIAI4PLOEK52ZUPANHA
   iam_secret: U2djTnJnbVJjbzl1VEZrVUVFVEhVM1orbmZOMlA0a290K3ZGZFdadw==
   aws_region: us-west-2
   userpool: us-west-2_8u1FAcwMx
 
 idm:
-  enabled: true
+  enabled: "true"
   mapping_script: config/idm.groovy
   basic_auth_user: idmperry
   basic_auth_password: R2Q0MWg5ZHFQUHU=
@@ -74,7 +74,7 @@ sp:
  intake_identity_mapping_script: config/intake.groovy
 
 swagger:
-  enabled: true
+  enabled: "true"
 
 environment:
   url: https://web.sandboxk8.cwds.io
@@ -93,12 +93,12 @@ redis:
 # Full URL to Perry (TODO: make this dynamic using Route53 annotations).
 perryURL: http://localhost
 
-ignore_oauth2_state: true
-use_current_uri: true
+ignore_oauth2_state: "true"
+use_current_uri: "true"
 
 # Major application parameters
-devMode: true
-mfaMode: false
+devMode: "true"
+mfaMode: "false"
 log_level: INFO
 
 dora_url: https://doraapi.sandboxk8.cwds.io
