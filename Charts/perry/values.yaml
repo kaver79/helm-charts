@@ -78,6 +78,7 @@ swagger:
 
 environment:
   url: https://web.sandboxk8.cwds.io
+  name: sandboxk8.cwds.io
 
 ##
 ## Redis chart configuration
