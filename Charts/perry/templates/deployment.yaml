@@ -3,12 +3,12 @@ kind: Deployment
 metadata:
   name: {{ template "perry.fullname" . }}
   namespace: {{ .Values.namespace }}
-    labels:
-      app: {{ template "perry.name" . }}
-      chart: {{ template "perry.chart" . }}
-      release: {{ .Release.Name }}
-      heritage: {{ .Release.Service }}
-      environment: {{ .Values.environment.name | lower }}
+  labels:
+    app: {{ template "perry.name" . }}
+    chart: {{ template "perry.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    environment: {{ .Values.environment.name | lower }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
