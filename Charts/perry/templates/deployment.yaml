@@ -39,7 +39,7 @@ spec:
             - containerPort: 9082
           envFrom:
           - configMapRef:
-              name: {{ .Release.Name }}-config
+              name: {{ .Release.Name }}-configmap
           env:
           - name: DB_CMS_PASSWORD
             valueFrom:
