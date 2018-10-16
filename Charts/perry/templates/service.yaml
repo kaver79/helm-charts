@@ -2,13 +2,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "perry.fullname" . }}
-  namespace: {{ .Values.environment.name.split(".")[0] | lower }}
+  namespace: {{ .Values.namespace }}
   labels:
     app: {{ template "perry.name" . }}
     chart: {{ template "perry.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-    environment: {{ .Values.environment.name.split(".")[0] | lower }}
+    environment: {{ .Values.environment.name | lower }}
   annotations:
     dns.alpha.kubernetes.io/internal: {{ template "perry.name" . }}.{{ .Values.environment.name }}
     service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-west-1:142152461930:certificate/821fb02e-7d1b-452e-8cf6-a5c8343d0c95

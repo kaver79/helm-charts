@@ -4,6 +4,8 @@
 
 replicaCount: 2
 
+namespace: sandboxk8
+
 image:
   repository: cwds/perry
   tag: 4.0.0_993-RC
