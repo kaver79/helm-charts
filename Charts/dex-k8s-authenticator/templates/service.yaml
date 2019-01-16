@@ -1,0 +1,37 @@
+{{- if .Values.service.enabled -}}
+  {{- $fullName := include "dex-k8s-authenticator.fullname" . -}}
+  {{- $servicePort := .Values.service.port -}}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "dex-k8s-authenticator.fullname" . }}
+  labels:
+    app: {{ template "dex-k8s-authenticator.name" . }}
+    env: {{ default "dev" .Values.global.deployEnv }}
+    chart: {{ template "dex-k8s-authenticator.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    dns.alpha.kubernetes.io/internal: {{ .Values.service.dns_name }}
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: {{ .Values.service.ssl_certificate }}
+    service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: "ELBSecurityPolicy-TLS-1-2-2017-01"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-timeout: "60"
+
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+  - port: {{ $servicePort }}
+    targetPort: http
+    protocol: TCP
+    name: http
+{{- if and  .Values.service.nodePort (eq "NodePort" .Values.service.type) }}
+    nodePort: {{ .Values.service.nodePort }}
+{{- end }}
+  selector:
+    app: {{ template "dex-k8s-authenticator.name" . }}
+    release: {{ .Release.Name }}
