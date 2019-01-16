@@ -1,45 +1,114 @@
-# Default values for cals-api.
+# Default values for perry.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
+replicaCount: 2
+
+namespace: sandboxk8
 
 image:
-  repository: nginx
-  tag: stable
+  repository: cwds/cals-api
+  tag: 1.1.23
   pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP
-  port: 80
+  type: LoadBalancer
+  clientPort: 443
+  adminPort: 9082
+  cert_arn: arn:aws:acm:us-west-1:142152461930:certificate/821fb02e-7d1b-452e-8cf6-a5c8343d0c95
 
-ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  path: /
-  hosts:
-    - chart-example.local
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #  cpu: 100m
-  #  memory: 128Mi
-  # requests:
-  #  cpu: 100m
-  #  memory: 128Mi
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 500m
+  limits:
+    memory: 2048Mi
+    cpu: 2000m
 
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
+
+###
+### Perry configuration
+###
+db:
+  cms:
+    database: DBN1SOC
+    user: CWDSNS3
+    url: jdbc:db2://db-1a.nonprod-gateway.cwds.io:4016/DBN1SOC
+    schema: CWSNS1
+    password: SnVseTAxOEE=
+
+token:
+  timeout: 480
+  name: access_token
+  store:
+    url: jdbc:postgresql://postgresql.sandboxk8.cwds.io:5432/sandboxk8?currentSchema=perry
+    user: sandboxk8_postgres
+    schema: perry
+    password: ajgzZVBNa2pYQjlkOGpoZg==
+
+idp:
+  base_url: https://sandboxk8cwds.auth.us-west-2.amazoncognito.com
+  client_id: g9p2rvtlttf1alf4cga9dsv8t
+  client_secret: MmZsMGNvdG82bjJxcTlvYjYxN2swYWxkM3BmdGhrbzA1OWJoM3BwZDUwZWo2dGN1aDVi
+  mapping_script: config/cognito.groovy
+  auth_schema: query
+  client_auth_schema: header
+  validate_interval: 60
+  host: cognito-idp.us-west-2.amazonaws.com
+  enabled: "true"
+  iam_access_id: AKIAI4PLOEK52ZUPANHA
+  iam_secret: U2djTnJnbVJjbzl1VEZrVUVFVEhVM1orbmZOMlA0a290K3ZGZFdadw==
+  aws_region: us-west-2
+  userpool: us-west-2_8u1FAcwMx
+
+idm:
+  enabled: "true"
+  mapping_script: config/idm.groovy
+  basic_auth_user: idmperry
+  basic_auth_password: R2Q0MWg5ZHFQUHU=
+
+sp:
+ identity_mapping_script: config/default.groovy
+ intake_identity_mapping_script: config/intake.groovy
+
+swagger:
+  enabled: "true"
+
+environment:
+  url: https://web.sandboxk8.cwds.io
+  name: sandboxk8.cwds.io
+
+##
+## Redis chart configuration
+##
+redis:
+  ## Whether to use redis or not. If disabled the application will be configured to run without redis.
+  enabled: true
+  port: 6379
+  host: intake.redis.sandboxk8.cwds.io
+  ## Application appears to fail to connect when a password is used - TODO: investigate this - for now AWS is not support auth on redis side.
+  redisPassword:
+
+# Full URL to Perry (TODO: make this dynamic using Route53 annotations).
+perryURL: http://localhost
+
+ignore_oauth2_state: "true"
+use_current_uri: "true"
+
+# Major application parameters
+devMode: "true"
+mfaMode: "false"
+log_level: INFO
+
+dora_url: https://doraapi.sandboxk8.cwds.io
+whitelist: " http*://*.sandboxk8.cwds.io/** http*://*.sandboxk8.cwds.io:*/** /**/* **/* "
+
+# Optional application parameters can be specified below:
+#env:
+#- name:
+#  value:

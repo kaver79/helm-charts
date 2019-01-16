@@ -1,19 +1,35 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "cals-api.fullname" . }}
+  name: {{ template "apis.fullname" . }}
+  namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "cals-api.name" . }}
-    chart: {{ template "cals-api.chart" . }}
+    app: {{ template "apis.name" . }}
+    chart: {{ template "apis.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    environment: {{ .Values.environment.name | lower }}
+  annotations:
+    dns.alpha.kubernetes.io/internal: {{ template "apis.name" . }}.{{ .Values.environment.name }}
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: {{ .Values.service.cert_arn }}
+    service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: {{ .Values.service.clientPort | quote }}
+    service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: "ELBSecurityPolicy-TLS-1-2-2017-01"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-draining-timeout: "60"
+
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    - port: {{ .Values.service.clientPort }}
+      targetPort: http-client
       protocol: TCP
-      name: http
+      name: http-client
+    - port: {{ .Values.service.adminPort }}
+      targetPort: http-admin
+      protocol: TCP
+      name: http-admin
   selector:
-    app: {{ template "cals-api.name" . }}
+    app: {{ template "apis.name" . }}
     release: {{ .Release.Name }}

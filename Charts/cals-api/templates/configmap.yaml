@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ template "perry.name" . }}
+    chart: {{ template "perry.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    environment: {{ .Values.environment.name | lower }}
+data:
+  LOGIN_RESOURCE_HELPER: gov.ca.cwds.rest.resources.auth.SimpleAccountLoginResourceHelper
+  DB_CMS_USER: {{ .Values.db.cms.user }}
+  DB_CMS_JDBC_URL: {{ .Values.db.cms.url }}
+  DB_CMS_SCHEMA: {{ .Values.db.cms.schema }}
+  TOKEN_STORE_JDBC_URL: {{ .Values.token.store.url }}
+  TOKEN_STORE_DB_USER: {{ .Values.token.store.user }}
+  TOKEN_STORE_SCHEMA: {{ .Values.token.store.schema }}
+  TOKEN_TIMEOUT: {{ .Values.token.timeout | quote }}
+  TOKEN_NAME: {{ .Values.token.name }}
+  SAF_REVOKE_TOKEN_URI: https://cognito-idp.us-west-2.amazonaws.com/revoke
+  SAF_BASE_URL: https://sectest.dss.ca.gov/performance/dss_saf/
+  SAF_VALIDATE_TOKEN_PATH: https://cognito-idp.us-west-2.amazonaws.com
+  SAF_VALIDATE_TOKEN_URI: https://cognito-idp.us-west-2.amazonaws.com
+  SAF_USER_INFO_URI: https://cognito-idp.us-west-2.amazonaws.com
+  SAF_LOGOUT_URI: {{ .Values.idp.base_url }}/logout
+  SAF_AUTH_PATH: {{ .Values.idp.base_url }}/login
+  SAF_RETRIEVE_TOKEN_PATH: {{ .Values.idp.base_url }}/oauth2/token
+  SAF_CLIENT_ID: {{ .Values.idp.client_id }}
+  IDP_MAPPING_SCRIPT: {{ .Values.idp.mapping_script }}
+  SAF_AUTH_SCHEME: {{ .Values.idp.auth_schema }}
+  SAF_CLIENT_AUTH_SCHEME: {{ .Values.idp.client_auth_schema }}
+  SAF_AUTH_SCHEMA: {{ .Values.idp.auth_schema }}
+  SAF_CLIENT_AUTH_SCHEMA: {{ .Values.idp.client_auth_schema }}
+  SP_IDENTITY_MAPPING_SCRIPT:  {{ .Values.sp.identity_mapping_script }}
+  SP_INTAKE_IDENTITY_MAPPING_SCRIPT:  {{ .Values.sp.intake_identity_mapping_script }}
+  SAF_SCOPE: ""
+  SAF_CALLBACK_URL: {{ .Values.environment.url }}/perry/authn/callback
+  SIMPLE_ACCOUNT_LOGIN_BASE_PATH: {{ .Values.environment.url }}/perry/
+  SHOW_SWAGGER: {{ .Values.swagger.enabled | quote }}
+  SWAGGER: {{ .Values.swagger.enabled | quote }}
+  IDP_VALIDATE_INTERVAL: {{ .Values.idp.validate_interval | quote }}
+  TOKEN_ENCRYPTION_METHOD: A128GCM
+  KEYSTORE_ENC_ALIAS: enc128
+  DEV_MODE: {{ .Values.devMode | quote }}
+  CONTEXT_PATH: /perry/
+  CWDS_OPTS: -javaagent:/opt/newrelic/newrelic.jar
+  REDIS_HOST: {{ .Values.redis.host }}
+  REDIS_PORT: {{ .Values.redis.port | quote }}
+  REDIS_ENABLED: {{ .Values.redis.enabled | quote }}
+  HOME_PAGE_URL: {{ .Values.environment.url }}
+  IGNORE_OAUTH2_STATE: {{ .Values.ignore_oauth2_state | quote }}
+  USE_CURRENT_URI: {{ .Values.use_current_uri | quote }}
+  REDIRECT_URI: {{ .Values.environment.url }}/perry/login
+  COGNITO_HOST: {{ .Values.idp.host }}
+  COGNITO_MODE: {{ .Values.idp.enabled | quote }}
+  COGNITO_IAM_ACCESS_ID: {{ .Values.idp.iam_access_id }}
+  COGNITO_REGION: {{ .Values.idp.aws_region }}
+  COGNITO_USERPOOL: {{ .Values.idp.userpool }}
+  IDM_MAPPING_SCRIPT: {{ .Values.idm.mapping_script }}
+  IDM_MODE: {{ .Values.idm.enabled | quote }}
+  IDM_BASIC_AUTH_USER: {{ .Values.idm.basic_auth_user }}
+  MFA: {{ .Values.mfaMode | quote }}
+  LOGIN_PAGE_URL: {{ .Values.idp.base_url }}
+  DORA_URL: {{ .Values.dora_url | quote }}
+  LOG_LEVEL: {{ .Values.log_level | quote }}
+  WHITE_LIST: {{ .Values.whitelist }}

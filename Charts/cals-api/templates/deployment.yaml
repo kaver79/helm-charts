@@ -1,40 +1,86 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ template "cals-api.fullname" . }}
+  name: {{ template "perry.fullname" . }}
+  namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "cals-api.name" . }}
-    chart: {{ template "cals-api.chart" . }}
+    app: {{ template "perry.name" . }}
+    chart: {{ template "perry.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    environment: {{ .Values.environment.name | lower }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "cals-api.name" . }}
+      app: {{ template "perry.name" . }}
       release: {{ .Release.Name }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  progressDeadlineSeconds: 120
+  minReadySeconds: 60
+  revisionHistoryLimit: 5
   template:
     metadata:
       labels:
-        app: {{ template "cals-api.name" . }}
+        app: {{ template "perry.name" . }}
         release: {{ .Release.Name }}
+        environment: {{ .Values.environment.name | lower }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
+            - containerPort: 8080
+            - containerPort: 9082
+          envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}-configmap
+          env:
+          - name: DB_CMS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "perry.fullname" . }}
+                key: db_cms_password
+          - name: TOKEN_STORE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "perry.fullname" . }}
+                key: token_store_password
+          - name: SAF_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "perry.fullname" . }}
+                key: saf-client-secret
+          - name: COGNITO_IAM_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "perry.fullname" . }}
+                key: cognito-iam-secret
+          - name: IDM_BASIC_AUTH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "perry.fullname" . }}
+                key: idm-basic-auth-password
+          ports:
+          - name: perry-client
+            containerPort: 8080
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /perry/system-information
+              port: perry-client
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          livenessProbe:
+            httpGet:
+              path: /perry/system-information
+              port: perry-client
+            initialDelaySeconds: 180
+            periodSeconds: 30
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
